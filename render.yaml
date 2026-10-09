@@ -13,4 +13,6 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: ALLOWED_HOSTS
-        value: "localhost,127.0.0.1,.onrender.com"
+        value: "localhost,127.0.0.1,.onrender.com,bookstory-b9l5.onrender.com"
+      - key: CSRF_TRUSTED_ORIGINS
+        value: "https://bookstory-b9l5.onrender.com"
