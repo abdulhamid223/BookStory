@@ -1,0 +1,89 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if LANGUAGE_CODE == 'uz' %}Ro'yxatdan o'tish{% elif LANGUAGE_CODE == 'ru' %}Регистрация{% else %}Sign up{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-box">
+        <h1>
+            {% if LANGUAGE_CODE == 'uz' %}Ro'yxatdan o'tish{% elif LANGUAGE_CODE == 'ru' %}Регистрация{% else %}Create account{% endif %}
+        </h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message-error">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        {% if form.errors %}
+            <div class="message-error">
+                {{ form.errors }}
+            </div>
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            <div class="field">
+                <label>
+                    {% if LANGUAGE_CODE == 'uz' %}Ism{% elif LANGUAGE_CODE == 'ru' %}Имя{% else %}First name{% endif %}
+                </label>
+                {{ form.first_name }}
+                {% for error in form.first_name.errors %}
+                    <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label>
+                    {% if LANGUAGE_CODE == 'uz' %}Familiya{% elif LANGUAGE_CODE == 'ru' %}Фамилия{% else %}Last name{% endif %}
+                </label>
+                {{ form.last_name }}
+                {% for error in form.last_name.errors %}
+                    <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label>
+                    {% if LANGUAGE_CODE == 'uz' %}Telefon raqam{% elif LANGUAGE_CODE == 'ru' %}Телефон{% else %}Phone number{% endif %}
+                </label>
+                {{ form.phone }}
+                {% for error in form.phone.errors %}
+                    <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label>
+                    {% if LANGUAGE_CODE == 'uz' %}Manzil{% elif LANGUAGE_CODE == 'ru' %}Адрес{% else %}Address{% endif %}
+                </label>
+                {{ form.address }}
+                {% for error in form.address.errors %}
+                    <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <div class="field">
+                <label>
+                    {% if LANGUAGE_CODE == 'uz' %}Parol{% elif LANGUAGE_CODE == 'ru' %}Пароль{% else %}Password{% endif %}
+                </label>
+                {{ form.password }}
+                {% for error in form.password.errors %}
+                    <div class="error-text">{{ error }}</div>
+                {% endfor %}
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                {% if LANGUAGE_CODE == 'uz' %}Ro'yxatdan o'tish{% elif LANGUAGE_CODE == 'ru' %}Зарегистрироваться{% else %}Sign up{% endif %}
+            </button>
+
+            <a href="{% url 'login' %}" class="btn btn-secondary">
+                {% if LANGUAGE_CODE == 'uz' %}Kirish{% elif LANGUAGE_CODE == 'ru' %}Войти{% else %}Login{% endif %}
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}

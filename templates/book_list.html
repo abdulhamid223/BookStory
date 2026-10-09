@@ -1,0 +1,173 @@
+{% extends "base.html" %}
+{% load price_filters %}
+
+{% block title %}BookStore — Home{% endblock %}
+
+{% block content %}
+
+<div class="container">
+
+    <section class="hero">
+        <div class="hero-content">
+            <span class="eyebrow">
+                {% if LANGUAGE_CODE == 'uz' %}Premium kutubxona{% elif LANGUAGE_CODE == 'ru' %}Премиальная библиотека{% else %}Premium bookstore{% endif %}
+            </span>
+            <h1>
+                {% if LANGUAGE_CODE == 'uz' %}Keyingi sevimli kitobingizni toping.{% elif LANGUAGE_CODE == 'ru' %}Найдите свою следующую любимую книгу.{% else %}Discover your next favorite book.{% endif %}
+            </h1>
+
+            <p>
+                {% if LANGUAGE_CODE == 'uz' %}Kitoblar to'plamimizni ko'ring, yangi mualliflarni tanlang va sizni ilhomlantiradigan hikoyalarni toping.{% elif LANGUAGE_CODE == 'ru' %}Изучайте нашу коллекцию книг, открывайте новых авторов и находите истории, которые вдохновляют вас.{% else %}Explore our collection of books, discover new authors and find stories that inspire you.{% endif %}
+            </p>
+
+            <div class="hero-actions">
+                <a href="#library" class="btn btn-primary hero-primary-btn">
+                    {% if LANGUAGE_CODE == 'uz' %}Kutubxonani ko'rish{% elif LANGUAGE_CODE == 'ru' %}Посмотреть библиотеку{% else %}Explore library{% endif %}
+                </a>
+            </div>
+
+            <div class="hero-stats">
+                <div class="hero-stat">
+                    <strong>{{ books|length }}</strong>
+                    <span>{% if LANGUAGE_CODE == 'uz' %}Kitoblar{% elif LANGUAGE_CODE == 'ru' %}Книги{% else %}Books{% endif %}</span>
+                </div>
+                <div class="hero-stat">
+                    <strong>24/7</strong>
+                    <span>{% if LANGUAGE_CODE == 'uz' %}Kirish{% elif LANGUAGE_CODE == 'ru' %}Доступ{% else %}Access{% endif %}</span>
+                </div>
+                <div class="hero-stat">
+                    <strong>4.9</strong>
+                    <span>{% if LANGUAGE_CODE == 'uz' %}Reyting{% elif LANGUAGE_CODE == 'ru' %}Рейтинг{% else %}Rating{% endif %}</span>
+                </div>
+            </div>
+        </div>
+
+        <div class="hero-visual" aria-hidden="true">
+            <div class="cover-stack">
+                <div class="cover-card cover-harry">
+                    <span class="cover-label">Harry Potter</span>
+                </div>
+                <div class="cover-card cover-1984">
+                    <span class="cover-label">1984</span>
+                </div>
+                <div class="cover-card cover-alchemist">
+                    <span class="cover-label">The Alchemist</span>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <section class="landing-grid">
+        <div class="mini-feature">
+            <div class="icon">✨</div>
+            <h3>{% if LANGUAGE_CODE == 'uz' %}Tanlangan nashrlar{% elif LANGUAGE_CODE == 'ru' %}Избранные издания{% else %}Curated editions{% endif %}</h3>
+            <p>{% if LANGUAGE_CODE == 'uz' %}Har bir kitob sifatli tanlov va zamonaviy ko'rinishda taqdim etiladi.{% elif LANGUAGE_CODE == 'ru' %}Каждая книга представлена в качественном подборе и современном оформлении.{% else %}Every title is chosen with quality, style, and reader experience in mind.{% endif %}</p>
+        </div>
+        <div class="mini-feature">
+            <div class="icon">🚀</div>
+            <h3>{% if LANGUAGE_CODE == 'uz' %}Tez ko'rish{% elif LANGUAGE_CODE == 'ru' %}Быстрый просмотр{% else %}Fast browsing{% endif %}</h3>
+            <p>{% if LANGUAGE_CODE == 'uz' %}Bir necha bosqichda sevimli kitobingizga tez va qulay kirishingiz mumkin.{% elif LANGUAGE_CODE == 'ru' %}Найдите нужную книгу быстро и максимально удобно.{% else %}Browse quickly and find your next read without friction.{% endif %}</p>
+        </div>
+        <div class="mini-feature">
+            <div class="icon">💎</div>
+            <h3>{% if LANGUAGE_CODE == 'uz' %}Premium tajriba{% elif LANGUAGE_CODE == 'ru' %}Премиальный опыт{% else %}Premium experience{% endif %}</h3>
+            <p>{% if LANGUAGE_CODE == 'uz' %}Zamonaviy dizayn, qulay navigatsiya va ajoyib interface bilan ishlang.{% elif LANGUAGE_CODE == 'ru' %}Наслаждайтесь современным дизайном, удобной навигацией и стильным интерфейсом.{% else %}Enjoy a premium aesthetic with fluid navigation and a polished interface.{% endif %}</p>
+        </div>
+    </section>
+
+    <section class="section" id="library">
+
+        <div class="section-header">
+            <div>
+                <h2>
+                    {% if LANGUAGE_CODE == 'uz' %}Mashhur kitoblar{% elif LANGUAGE_CODE == 'ru' %}Популярные книги{% else %}Popular Books{% endif %}
+                </h2>
+                <p>
+                    {% if LANGUAGE_CODE == 'uz' %}Eng yangi to'plamimizni ko'rib chiqing{% elif LANGUAGE_CODE == 'ru' %}Посмотрите нашу последнюю коллекцию{% else %}Explore our latest collection{% endif %}
+                </p>
+            </div>
+
+        </div>
+
+        {% if books %}
+
+        <div class="books-grid">
+
+            {% for book in books %}
+
+            <div class="book-card">
+
+                <div class="book-cover">
+
+                    {% if book.image %}
+                        <img src="{{ book.image.url }}" alt="{{ book.title }}">
+                        <div class="book-cover-label">{{ book.title }}</div>
+                    {% else %}
+                        <div class="book-cover-fallback">📖</div>
+                    {% endif %}
+
+                </div>
+
+                <div class="book-info">
+
+                    <h3>{{ book.title }}</h3>
+
+                    <div class="author">
+                        {% if LANGUAGE_CODE == 'uz' %}muallif: {{ book.author }}{% elif LANGUAGE_CODE == 'ru' %}автор: {{ book.author }}{% else %}by {{ book.author }}{% endif %}
+                    </div>
+
+                    <div class="price">
+                        {{ book.price|uzs }} so'm
+                    </div>
+
+                    <div class="year">
+                        {% if LANGUAGE_CODE == 'uz' %}Nashr yili: {{ book.published_year }}{% elif LANGUAGE_CODE == 'ru' %}Год публикации: {{ book.published_year }}{% else %}Published: {{ book.published_year }}{% endif %}
+                    </div>
+
+                    <div class="card-buttons">
+
+                        <a href="{% url 'book_detail' book.id %}" class="btn btn-primary">
+                            {% if LANGUAGE_CODE == 'uz' %}Ko'rish{% elif LANGUAGE_CODE == 'ru' %}Смотреть{% else %}View{% endif %}
+                        </a>
+
+                        {% if user.is_authenticated %}
+                            <a href="{% url 'book_update' book.id %}" class="btn btn-secondary">
+                                {% if LANGUAGE_CODE == 'uz' %}Tahrirlash{% elif LANGUAGE_CODE == 'ru' %}Редактировать{% else %}Edit{% endif %}
+                            </a>
+
+                            <a href="{% url 'book_delete' book.id %}" class="btn btn-danger" onclick="return confirm('{% if LANGUAGE_CODE == 'uz' %}Ushbu kitobni o\'chirishni xohlaysizmi?{% elif LANGUAGE_CODE == 'ru' %}Удалить эту книгу?{% else %}Delete this book?{% endif %}')">
+                                {% if LANGUAGE_CODE == 'uz' %}O'chirish{% elif LANGUAGE_CODE == 'ru' %}Удалить{% else %}Delete{% endif %}
+                            </a>
+                        {% endif %}
+
+                    </div>
+
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+        {% else %}
+
+        <div class="empty">
+            <h2>
+                {% if LANGUAGE_CODE == 'uz' %}Hali kitoblar yo'q 📚{% elif LANGUAGE_CODE == 'ru' %}Пока нет книг 📚{% else %}No books yet 📚{% endif %}
+            </h2>
+            <p>
+                {% if LANGUAGE_CODE == 'uz' %}Birinchi kitobingizni qo'shing.{% elif LANGUAGE_CODE == 'ru' %}Добавьте свою первую книгу в коллекцию.{% else %}Add your first book to the collection.{% endif %}
+            </p>
+
+            <br>
+
+        </div>
+
+        {% endif %}
+
+    </section>
+
+</div>
+
+{% endblock %}

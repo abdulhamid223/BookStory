@@ -1,0 +1,55 @@
+{% extends "base.html" %}
+
+{% block title %}
+    {% if LANGUAGE_CODE == 'uz' %}Kirish{% elif LANGUAGE_CODE == 'ru' %}Войти{% else %}Login{% endif %}
+{% endblock %}
+
+{% block content %}
+<div class="container">
+    <div class="form-box">
+        <h1>
+            {% if LANGUAGE_CODE == 'uz' %}Kirish{% elif LANGUAGE_CODE == 'ru' %}Вход{% else %}Login{% endif %}
+        </h1>
+
+        {% if messages %}
+            {% for message in messages %}
+                <div class="message-error">{{ message }}</div>
+            {% endfor %}
+        {% endif %}
+
+        <form method="POST">
+            {% csrf_token %}
+
+            {% if next %}
+                <input type="hidden" name="next" value="{{ next }}">
+            {% endif %}
+
+            <div class="field">
+                <label>
+                    {% if LANGUAGE_CODE == 'uz' %}Foydalanuvchi ID{% elif LANGUAGE_CODE == 'ru' %}ID пользователя{% else %}User ID{% endif %}
+                </label>
+                <input type="text" name="user_id" required>
+            </div>
+
+            <div class="field">
+                <label>
+                    {% if LANGUAGE_CODE == 'uz' %}Parol{% elif LANGUAGE_CODE == 'ru' %}Пароль{% else %}Password{% endif %}
+                </label>
+                <input type="password" name="password" required>
+            </div>
+
+            <button type="submit" class="btn btn-primary">
+                {% if LANGUAGE_CODE == 'uz' %}Kirish{% elif LANGUAGE_CODE == 'ru' %}Войти{% else %}Login{% endif %}
+            </button>
+
+            <a href="{% url 'register' %}" class="btn btn-secondary">
+                {% if LANGUAGE_CODE == 'uz' %}Ro'yxatdan o'tish{% elif LANGUAGE_CODE == 'ru' %}Регистрация{% else %}Sign up{% endif %}
+            </a>
+
+            <a href="{% url 'book_list' %}" class="btn btn-secondary">
+                {% if LANGUAGE_CODE == 'uz' %}Bekor qilish{% elif LANGUAGE_CODE == 'ru' %}Отмена{% else %}Cancel{% endif %}
+            </a>
+        </form>
+    </div>
+</div>
+{% endblock %}
