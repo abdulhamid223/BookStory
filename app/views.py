@@ -137,9 +137,6 @@ def book_create(request):
 
 @login_required(login_url="login")
 def book_update(request, id):
-    if not request.user.is_staff:
-        raise PermissionDenied
-
     book = get_object_or_404(Book, id=id)
 
     if request.method == "POST":
@@ -159,9 +156,6 @@ def book_update(request, id):
 
 @login_required(login_url="login")
 def book_delete(request, id):
-    if not request.user.is_staff:
-        raise PermissionDenied
-
     book = get_object_or_404(Book, id=id)
     book.delete()
 
