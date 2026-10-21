@@ -1,9 +1,9 @@
 services:
   - type: web
-    name: bookstory
+    name: booklife-uz
     env: python
     plan: free
-    buildCommand: pip install -r requirements.txt
+    buildCommand: pip install -r requirements.txt && python manage.py collectstatic --noinput
     startCommand: python manage.py migrate --noinput && gunicorn config.wsgi:application --bind 0.0.0.0:$PORT
     envVars:
       - key: PYTHON_VERSION
@@ -13,6 +13,8 @@ services:
       - key: SECRET_KEY
         generateValue: true
       - key: ALLOWED_HOSTS
-        value: "localhost,127.0.0.1,.onrender.com,bookstory-b9l5.onrender.com"
+        value: "localhost,127.0.0.1,.onrender.com"
       - key: CSRF_TRUSTED_ORIGINS
-        value: "https://bookstory-b9l5.onrender.com"
+        value: "https://booklife-uz.onrender.com"
+      - key: CLOUDINARY_URL
+        sync: false

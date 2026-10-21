@@ -1,7 +1,7 @@
 {% extends "base.html" %}
 {% load price_filters %}
 
-{% block title %}BookStore — Home{% endblock %}
+{% block title %}BookLife — Home{% endblock %}
 
 {% block content %}
 
@@ -13,7 +13,7 @@
                 {% if LANGUAGE_CODE == 'uz' %}Premium kutubxona{% elif LANGUAGE_CODE == 'ru' %}Премиальная библиотека{% else %}Premium bookstore{% endif %}
             </span>
             <h1>
-                {% if LANGUAGE_CODE == 'uz' %}Keyingi sevimli kitobingizni toping.{% elif LANGUAGE_CODE == 'ru' %}Найдите свою следующую любимую книгу.{% else %}Discover your next favorite book.{% endif %}
+                {% if LANGUAGE_CODE == 'uz' %}Keyingi <em>sevimli</em> kitobingizni toping.{% elif LANGUAGE_CODE == 'ru' %}Найдите свою следующую <em>любимую</em> книгу.{% else %}Discover your next <em>favorite</em> book.{% endif %}
             </h1>
 
             <p>
@@ -21,9 +21,15 @@
             </p>
 
             <div class="hero-actions">
-                <a href="#library" class="btn btn-primary hero-primary-btn">
+                <a href="#library" class="btn btn-primary btn-lg">
                     {% if LANGUAGE_CODE == 'uz' %}Kutubxonani ko'rish{% elif LANGUAGE_CODE == 'ru' %}Посмотреть библиотеку{% else %}Explore library{% endif %}
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round" stroke-linejoin="round"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
                 </a>
+                {% if not user.is_authenticated %}
+                    <a href="{% url 'register' %}" class="btn btn-ghost btn-lg">
+                        {% if LANGUAGE_CODE == 'uz' %}Ro'yxatdan o'tish{% elif LANGUAGE_CODE == 'ru' %}Регистрация{% else %}Sign up{% endif %}
+                    </a>
+                {% endif %}
             </div>
 
             <div class="hero-stats">
@@ -36,42 +42,55 @@
                     <span>{% if LANGUAGE_CODE == 'uz' %}Kirish{% elif LANGUAGE_CODE == 'ru' %}Доступ{% else %}Access{% endif %}</span>
                 </div>
                 <div class="hero-stat">
-                    <strong>4.9</strong>
-                    <span>{% if LANGUAGE_CODE == 'uz' %}Reyting{% elif LANGUAGE_CODE == 'ru' %}Рейтинг{% else %}Rating{% endif %}</span>
+                    <strong>3</strong>
+                    <span>{% if LANGUAGE_CODE == 'uz' %}Til{% elif LANGUAGE_CODE == 'ru' %}Языка{% else %}Languages{% endif %}</span>
                 </div>
             </div>
         </div>
 
         <div class="hero-visual" aria-hidden="true">
-            <div class="cover-stack">
-                <div class="cover-card cover-harry">
-                    <span class="cover-label">Harry Potter</span>
-                </div>
-                <div class="cover-card cover-1984">
-                    <span class="cover-label">1984</span>
-                </div>
-                <div class="cover-card cover-alchemist">
-                    <span class="cover-label">The Alchemist</span>
-                </div>
+            <div class="stack">
+                {% for book in books|slice:":3" %}
+                    <div class="stack-book">
+                        {% if book.image %}<img src="{{ book.image.url }}" alt="">{% else %}<span>{{ book.title }}</span>{% endif %}
+                    </div>
+                {% endfor %}
+                {% if books|length < 3 %}
+                    {% if books|length < 1 %}<div class="stack-book"><span>Harry Potter</span></div>{% endif %}
+                    {% if books|length < 2 %}<div class="stack-book"><span>1984</span></div>{% endif %}
+                    <div class="stack-book"><span>The Alchemist</span></div>
+                {% endif %}
             </div>
         </div>
     </section>
 
-    <section class="landing-grid">
-        <div class="mini-feature">
-            <div class="icon">✨</div>
-            <h3>{% if LANGUAGE_CODE == 'uz' %}Tanlangan nashrlar{% elif LANGUAGE_CODE == 'ru' %}Избранные издания{% else %}Curated editions{% endif %}</h3>
-            <p>{% if LANGUAGE_CODE == 'uz' %}Har bir kitob sifatli tanlov va zamonaviy ko'rinishda taqdim etiladi.{% elif LANGUAGE_CODE == 'ru' %}Каждая книга представлена в качественном подборе и современном оформлении.{% else %}Every title is chosen with quality, style, and reader experience in mind.{% endif %}</p>
+    <section class="features">
+        <div class="feature">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="12 2 15.09 8.26 22 9.27 17 14.14 18.18 21.02 12 17.77 5.82 21.02 7 14.14 2 9.27 8.91 8.26 12 2"/></svg>
+            </div>
+            <div>
+                <h3>{% if LANGUAGE_CODE == 'uz' %}Tanlangan nashrlar{% elif LANGUAGE_CODE == 'ru' %}Избранные издания{% else %}Curated editions{% endif %}</h3>
+                <p>{% if LANGUAGE_CODE == 'uz' %}Har bir kitob sifatli tanlov va zamonaviy ko'rinishda taqdim etiladi.{% elif LANGUAGE_CODE == 'ru' %}Каждая книга представлена в качественном подборе и современном оформлении.{% else %}Every title is chosen with quality, style, and reader experience in mind.{% endif %}</p>
+            </div>
         </div>
-        <div class="mini-feature">
-            <div class="icon">🚀</div>
-            <h3>{% if LANGUAGE_CODE == 'uz' %}Tez ko'rish{% elif LANGUAGE_CODE == 'ru' %}Быстрый просмотр{% else %}Fast browsing{% endif %}</h3>
-            <p>{% if LANGUAGE_CODE == 'uz' %}Bir necha bosqichda sevimli kitobingizga tez va qulay kirishingiz mumkin.{% elif LANGUAGE_CODE == 'ru' %}Найдите нужную книгу быстро и максимально удобно.{% else %}Browse quickly and find your next read without friction.{% endif %}</p>
+        <div class="feature">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polygon points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"/></svg>
+            </div>
+            <div>
+                <h3>{% if LANGUAGE_CODE == 'uz' %}Tez ko'rish{% elif LANGUAGE_CODE == 'ru' %}Быстрый просмотр{% else %}Fast browsing{% endif %}</h3>
+                <p>{% if LANGUAGE_CODE == 'uz' %}Bir necha bosqichda sevimli kitobingizga tez va qulay kirishingiz mumkin.{% elif LANGUAGE_CODE == 'ru' %}Найдите нужную книгу быстро и максимально удобно.{% else %}Browse quickly and find your next read without friction.{% endif %}</p>
+            </div>
         </div>
-        <div class="mini-feature">
-            <div class="icon">💎</div>
-            <h3>{% if LANGUAGE_CODE == 'uz' %}Premium tajriba{% elif LANGUAGE_CODE == 'ru' %}Премиальный опыт{% else %}Premium experience{% endif %}</h3>
-            <p>{% if LANGUAGE_CODE == 'uz' %}Zamonaviy dizayn, qulay navigatsiya va ajoyib interface bilan ishlang.{% elif LANGUAGE_CODE == 'ru' %}Наслаждайтесь современным дизайном, удобной навигацией и стильным интерфейсом.{% else %}Enjoy a premium aesthetic with fluid navigation and a polished interface.{% endif %}</p>
+        <div class="feature">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M6 3h12l4 6-10 13L2 9z"/><path d="M2 9h20"/><path d="M12 22 8 9l4-6 4 6z"/></svg>
+            </div>
+            <div>
+                <h3>{% if LANGUAGE_CODE == 'uz' %}Premium tajriba{% elif LANGUAGE_CODE == 'ru' %}Премиальный опыт{% else %}Premium experience{% endif %}</h3>
+                <p>{% if LANGUAGE_CODE == 'uz' %}Zamonaviy dizayn, qulay navigatsiya va ajoyib interface bilan ishlang.{% elif LANGUAGE_CODE == 'ru' %}Наслаждайтесь современным дизайном, удобной навигацией и стильным интерфейсом.{% else %}Enjoy a premium aesthetic with fluid navigation and a polished interface.{% endif %}</p>
+            </div>
         </div>
     </section>
 
@@ -87,81 +106,100 @@
                 </p>
             </div>
 
+            {% if books %}
+            <label class="search">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><circle cx="11" cy="11" r="7"/><line x1="21" y1="21" x2="16.65" y2="16.65"/></svg>
+                <input type="search" id="bookSearch" autocomplete="off" placeholder="{% if LANGUAGE_CODE == 'uz' %}Kitob yoki muallifni qidiring...{% elif LANGUAGE_CODE == 'ru' %}Поиск книги или автора...{% else %}Search title or author...{% endif %}">
+            </label>
+            {% endif %}
         </div>
 
         {% if books %}
 
-        <div class="books-grid">
+        <div class="genre-filter" id="genreFilter" role="group" aria-label="{% if LANGUAGE_CODE == 'uz' %}Janrlar{% elif LANGUAGE_CODE == 'ru' %}Жанры{% else %}Genres{% endif %}">
+            <button type="button" class="genre-btn active" data-genre="" aria-pressed="true">
+                {% if LANGUAGE_CODE == 'uz' %}Barchasi{% elif LANGUAGE_CODE == 'ru' %}Все{% else %}All{% endif %}
+                <span class="genre-count">{{ books|length }}</span>
+            </button>
+            {% for genre in genres %}
+                <button type="button" class="genre-btn" data-genre="{{ genre.key }}" aria-pressed="false">
+                    {{ genre.label }}
+                    <span class="genre-count">{{ genre.count }}</span>
+                </button>
+            {% endfor %}
+        </div>
+
+        <div class="books-grid" id="booksGrid">
 
             {% for book in books %}
 
-            <div class="book-card">
+            <article class="book-card" data-genre="{{ book.genre }}" data-search="{{ book.title|lower }} {{ book.author|lower }}" style="animation-delay: {% widthratio forloop.counter0 1 40 %}ms">
 
-                <div class="book-cover">
-
+                <a href="{% url 'book_detail' book.id %}" class="book-cover">
                     {% if book.image %}
-                        <img src="{{ book.image.url }}" alt="{{ book.title }}">
-                        <div class="book-cover-label">{{ book.title }}</div>
+                        <img src="{{ book.image.url }}" alt="{{ book.title }}" loading="lazy">
                     {% else %}
-                        <div class="book-cover-fallback">📖</div>
+                        <div class="book-cover-fallback">
+                            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+                        </div>
                     {% endif %}
+                    <span class="year-badge">{{ book.published_year }}</span>
+                </a>
 
+                {% if user.is_staff %}
+                <div class="cover-actions">
+                    <a href="{% url 'book_update' book.id %}" class="cover-action" title="{% if LANGUAGE_CODE == 'uz' %}Tahrirlash{% elif LANGUAGE_CODE == 'ru' %}Редактировать{% else %}Edit{% endif %}">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                    </a>
+                    <a href="{% url 'book_delete' book.id %}" class="cover-action danger" title="{% if LANGUAGE_CODE == 'uz' %}O'chirish{% elif LANGUAGE_CODE == 'ru' %}Удалить{% else %}Delete{% endif %}" onclick="return confirm('{% if LANGUAGE_CODE == 'uz' %}Ushbu kitobni o\'chirishni xohlaysizmi?{% elif LANGUAGE_CODE == 'ru' %}Удалить эту книгу?{% else %}Delete this book?{% endif %}')">
+                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/><path d="M9 6V4a1 1 0 0 1 1-1h4a1 1 0 0 1 1 1v2"/></svg>
+                    </a>
                 </div>
+                {% endif %}
 
                 <div class="book-info">
-
-                    <h3>{{ book.title }}</h3>
+                    <span class="genre-tag">{{ book.genre|genre_label:LANGUAGE_CODE }}</span>
+                    <h3><a href="{% url 'book_detail' book.id %}">{{ book.title }}</a></h3>
 
                     <div class="author">
                         {% if LANGUAGE_CODE == 'uz' %}muallif: {{ book.author }}{% elif LANGUAGE_CODE == 'ru' %}автор: {{ book.author }}{% else %}by {{ book.author }}{% endif %}
                     </div>
 
-                    <div class="price">
-                        {{ book.price|uzs }} so'm
-                    </div>
-
-                    <div class="year">
-                        {% if LANGUAGE_CODE == 'uz' %}Nashr yili: {{ book.published_year }}{% elif LANGUAGE_CODE == 'ru' %}Год публикации: {{ book.published_year }}{% else %}Published: {{ book.published_year }}{% endif %}
-                    </div>
-
-                    <div class="card-buttons">
-
-                        <a href="{% url 'book_detail' book.id %}" class="btn btn-primary">
+                    <div class="book-meta">
+                        <div class="price">{{ book.price|uzs }} <small>so'm</small></div>
+                        <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary btn-sm">
                             {% if LANGUAGE_CODE == 'uz' %}Ko'rish{% elif LANGUAGE_CODE == 'ru' %}Смотреть{% else %}View{% endif %}
                         </a>
-
-                        {% if user.is_authenticated %}
-                            <a href="{% url 'book_update' book.id %}" class="btn btn-secondary">
-                                {% if LANGUAGE_CODE == 'uz' %}Tahrirlash{% elif LANGUAGE_CODE == 'ru' %}Редактировать{% else %}Edit{% endif %}
-                            </a>
-
-                            <a href="{% url 'book_delete' book.id %}" class="btn btn-danger" onclick="return confirm('{% if LANGUAGE_CODE == 'uz' %}Ushbu kitobni o\'chirishni xohlaysizmi?{% elif LANGUAGE_CODE == 'ru' %}Удалить эту книгу?{% else %}Delete this book?{% endif %}')">
-                                {% if LANGUAGE_CODE == 'uz' %}O'chirish{% elif LANGUAGE_CODE == 'ru' %}Удалить{% else %}Delete{% endif %}
-                            </a>
-                        {% endif %}
-
                     </div>
-
                 </div>
 
-            </div>
+            </article>
 
             {% endfor %}
 
         </div>
 
+        <div class="no-results" id="noResults">
+            {% if LANGUAGE_CODE == 'uz' %}Hech narsa topilmadi.{% elif LANGUAGE_CODE == 'ru' %}Ничего не найдено.{% else %}No books match your search.{% endif %}
+        </div>
+
         {% else %}
 
         <div class="empty">
+            <div class="empty-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8" stroke-linecap="round" stroke-linejoin="round"><path d="M2 3h6a4 4 0 0 1 4 4v14a3 3 0 0 0-3-3H2z"/><path d="M22 3h-6a4 4 0 0 0-4 4v14a3 3 0 0 1 3-3h7z"/></svg>
+            </div>
             <h2>
-                {% if LANGUAGE_CODE == 'uz' %}Hali kitoblar yo'q 📚{% elif LANGUAGE_CODE == 'ru' %}Пока нет книг 📚{% else %}No books yet 📚{% endif %}
+                {% if LANGUAGE_CODE == 'uz' %}Hali kitoblar yo'q{% elif LANGUAGE_CODE == 'ru' %}Пока нет книг{% else %}No books yet{% endif %}
             </h2>
             <p>
                 {% if LANGUAGE_CODE == 'uz' %}Birinchi kitobingizni qo'shing.{% elif LANGUAGE_CODE == 'ru' %}Добавьте свою первую книгу в коллекцию.{% else %}Add your first book to the collection.{% endif %}
             </p>
-
-            <br>
-
+            {% if user.is_staff %}
+                <a href="{% url 'book_create' %}" class="btn btn-primary">
+                    {% if LANGUAGE_CODE == 'uz' %}Kitob qo'shish{% elif LANGUAGE_CODE == 'ru' %}Добавить книгу{% else %}Add book{% endif %}
+                </a>
+            {% endif %}
         </div>
 
         {% endif %}
@@ -170,4 +208,42 @@
 
 </div>
 
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function () {
+        var input = document.getElementById('bookSearch');
+        if (!input) return;
+        var cards = document.querySelectorAll('#booksGrid .book-card');
+        var buttons = document.querySelectorAll('#genreFilter .genre-btn');
+        var noResults = document.getElementById('noResults');
+        var genre = '';
+
+        function apply() {
+            var q = input.value.trim().toLowerCase();
+            var visible = 0;
+            cards.forEach(function (card) {
+                var match = (!q || card.dataset.search.indexOf(q) !== -1) && (!genre || card.dataset.genre === genre);
+                card.style.display = match ? '' : 'none';
+                if (match) visible++;
+            });
+            noResults.style.display = visible ? 'none' : 'block';
+        }
+
+        buttons.forEach(function (btn) {
+            btn.addEventListener('click', function () {
+                genre = btn.dataset.genre;
+                buttons.forEach(function (b) {
+                    var on = b === btn;
+                    b.classList.toggle('active', on);
+                    b.setAttribute('aria-pressed', on);
+                });
+                apply();
+            });
+        });
+
+        input.addEventListener('input', apply);
+    })();
+</script>
 {% endblock %}

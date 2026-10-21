@@ -5,52 +5,59 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
+<div class="container form-page">
     <div class="form-box">
-        <h1>
-            {% if LANGUAGE_CODE == 'uz' %}👤 Profil ma'lumotlari{% elif LANGUAGE_CODE == 'ru' %}👤 Данные профиля{% else %}👤 Profile Details{% endif %}
-        </h1>
-
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message-error" style="background:#ecfdf5;border-color:#a7f3d0;color:#065f46;">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+        <div class="form-head" style="display: flex; align-items: center; gap: 16px;">
+            <span class="avatar" style="width: 64px; height: 64px; font-size: 26px; flex-shrink: 0;">{{ user.first_name|default:user.username|slice:":1" }}</span>
+            <div>
+                <h1>
+                    {% if LANGUAGE_CODE == 'uz' %}Profil ma'lumotlari{% elif LANGUAGE_CODE == 'ru' %}Данные профиля{% else %}Profile Details{% endif %}
+                </h1>
+                <p>ID: <strong>{{ user.username }}</strong></p>
+            </div>
+        </div>
 
         <form method="POST">
             {% csrf_token %}
 
-            <div class="field">
-                <label>
-                    {% if LANGUAGE_CODE == 'uz' %}Ism{% elif LANGUAGE_CODE == 'ru' %}Имя{% else %}First name{% endif %}
-                </label>
-                {{ form.first_name }}
+            <div class="form-grid">
+                <div class="field">
+                    <label for="{{ form.first_name.id_for_label }}">
+                        {% if LANGUAGE_CODE == 'uz' %}Ism{% elif LANGUAGE_CODE == 'ru' %}Имя{% else %}First name{% endif %}
+                    </label>
+                    {{ form.first_name }}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.last_name.id_for_label }}">
+                        {% if LANGUAGE_CODE == 'uz' %}Familiya{% elif LANGUAGE_CODE == 'ru' %}Фамилия{% else %}Last name{% endif %}
+                    </label>
+                    {{ form.last_name }}
+                </div>
+
+                <div class="field full">
+                    <label for="{{ form.phone.id_for_label }}">
+                        {% if LANGUAGE_CODE == 'uz' %}Telefon{% elif LANGUAGE_CODE == 'ru' %}Телефон{% else %}Phone{% endif %}
+                    </label>
+                    {{ form.phone }}
+                </div>
+
+                <div class="field full">
+                    <label for="{{ form.address.id_for_label }}">
+                        {% if LANGUAGE_CODE == 'uz' %}Manzil{% elif LANGUAGE_CODE == 'ru' %}Адрес{% else %}Address{% endif %}
+                    </label>
+                    {{ form.address }}
+                </div>
             </div>
 
-            <div class="field">
-                <label>
-                    {% if LANGUAGE_CODE == 'uz' %}Familiya{% elif LANGUAGE_CODE == 'ru' %}Фамилия{% else %}Last name{% endif %}
-                </label>
-                {{ form.last_name }}
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    {% if LANGUAGE_CODE == 'uz' %}Saqlash{% elif LANGUAGE_CODE == 'ru' %}Сохранить{% else %}Save{% endif %}
+                </button>
+                <a href="{% url 'logout' %}" class="btn btn-danger btn-lg">
+                    {% if LANGUAGE_CODE == 'uz' %}Chiqish{% elif LANGUAGE_CODE == 'ru' %}Выйти{% else %}Logout{% endif %}
+                </a>
             </div>
-
-            <div class="field">
-                <label>
-                    {% if LANGUAGE_CODE == 'uz' %}Telefon{% elif LANGUAGE_CODE == 'ru' %}Телефон{% else %}Phone{% endif %}
-                </label>
-                {{ form.phone }}
-            </div>
-
-            <div class="field">
-                <label>
-                    {% if LANGUAGE_CODE == 'uz' %}Manzil{% elif LANGUAGE_CODE == 'ru' %}Адрес{% else %}Address{% endif %}
-                </label>
-                {{ form.address }}
-            </div>
-
-            <button type="submit" class="btn btn-primary">
-                {% if LANGUAGE_CODE == 'uz' %}Saqlash{% elif LANGUAGE_CODE == 'ru' %}Сохранить{% else %}Save{% endif %}
-            </button>
         </form>
     </div>
 </div>

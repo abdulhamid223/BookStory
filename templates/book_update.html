@@ -6,13 +6,19 @@
 
 {% block content %}
 
-<div class="container">
+<div class="container form-page">
 
     <div class="form-box">
 
-        <h1>
-            {% if LANGUAGE_CODE == 'uz' %}✏️ Kitobni tahrirlash{% elif LANGUAGE_CODE == 'ru' %}✏️ Редактировать книгу{% else %}✏️ Edit Book{% endif %}
-        </h1>
+        <div class="form-head">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+            </div>
+            <h1>
+                {% if LANGUAGE_CODE == 'uz' %}Kitobni tahrirlash{% elif LANGUAGE_CODE == 'ru' %}Редактировать книгу{% else %}Edit Book{% endif %}
+            </h1>
+            <p>{{ book.title }}</p>
+        </div>
 
         <form method="POST" enctype="multipart/form-data">
 
@@ -20,66 +26,73 @@
 
             {{ form.non_field_errors }}
 
+            <div class="form-grid">
+                <div class="field full">
+                    <label for="{{ form.title.id_for_label }}">
+                        {% if LANGUAGE_CODE == 'uz' %}Kitob nomi{% elif LANGUAGE_CODE == 'ru' %}Название книги{% else %}Book Title{% endif %}
+                    </label>
+                    {{ form.title }}
+                    {{ form.title.errors }}
+                </div>
 
-            <div class="field">
-                <label>
-                    {% if LANGUAGE_CODE == 'uz' %}Kitob nomi{% elif LANGUAGE_CODE == 'ru' %}Название книги{% else %}Book Title{% endif %}
-                </label>
-                {{ form.title }}
-                {{ form.title.errors }}
+                <div class="field full">
+                    <label for="{{ form.author.id_for_label }}">
+                        {% if LANGUAGE_CODE == 'uz' %}Muallif{% elif LANGUAGE_CODE == 'ru' %}Автор{% else %}Author{% endif %}
+                    </label>
+                    {{ form.author }}
+                    {{ form.author.errors }}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.price.id_for_label }}">
+                        {% if LANGUAGE_CODE == 'uz' %}Narx (so'm){% elif LANGUAGE_CODE == 'ru' %}Цена (сум){% else %}Price (UZS){% endif %}
+                    </label>
+                    {{ form.price }}
+                    {{ form.price.errors }}
+                </div>
+
+                <div class="field">
+                    <label for="{{ form.published_year.id_for_label }}">
+                        {% if LANGUAGE_CODE == 'uz' %}Nashr yili{% elif LANGUAGE_CODE == 'ru' %}Год публикации{% else %}Published Year{% endif %}
+                    </label>
+                    {{ form.published_year }}
+                    {{ form.published_year.errors }}
+                </div>
+
+                <div class="field full">
+                    <label for="{{ form.genre.id_for_label }}">
+                        {% if LANGUAGE_CODE == 'uz' %}Janr{% elif LANGUAGE_CODE == 'ru' %}Жанр{% else %}Genre{% endif %}
+                    </label>
+                    {{ form.genre }}
+                    {{ form.genre.errors }}
+                </div>
+
+                <div class="field full">
+                    <label for="{{ form.description.id_for_label }}">
+                        {% if LANGUAGE_CODE == 'uz' %}Tavsif{% elif LANGUAGE_CODE == 'ru' %}Описание{% else %}Description{% endif %}
+                    </label>
+                    {{ form.description }}
+                    {{ form.description.errors }}
+                </div>
+
+                <div class="field full">
+                    <label for="{{ form.image.id_for_label }}">
+                        {% if LANGUAGE_CODE == 'uz' %}Kitob rasmi{% elif LANGUAGE_CODE == 'ru' %}Изображение книги{% else %}Book Image{% endif %}
+                    </label>
+                    <div class="file-field">{{ form.image }}</div>
+                    {{ form.image.errors }}
+                </div>
             </div>
 
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg">
+                    {% if LANGUAGE_CODE == 'uz' %}O'zgarishlarni saqlash{% elif LANGUAGE_CODE == 'ru' %}Сохранить изменения{% else %}Save Changes{% endif %}
+                </button>
 
-            <div class="field">
-                <label>
-                    {% if LANGUAGE_CODE == 'uz' %}Muallif{% elif LANGUAGE_CODE == 'ru' %}Автор{% else %}Author{% endif %}
-                </label>
-                {{ form.author }}
-                {{ form.author.errors }}
+                <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary btn-lg">
+                    {% if LANGUAGE_CODE == 'uz' %}Bekor qilish{% elif LANGUAGE_CODE == 'ru' %}Отмена{% else %}Cancel{% endif %}
+                </a>
             </div>
-
-
-            <div class="field">
-                <label>
-                    {% if LANGUAGE_CODE == 'uz' %}Narx{% elif LANGUAGE_CODE == 'ru' %}Цена{% else %}Price{% endif %}
-                </label>
-                {{ form.price }}
-                {{ form.price.errors }}
-            </div>
-
-
-            <div class="field">
-                <label>
-                    {% if LANGUAGE_CODE == 'uz' %}Tavsif{% elif LANGUAGE_CODE == 'ru' %}Описание{% else %}Description{% endif %}
-                </label>
-                {{ form.description }}
-                {{ form.description.errors }}
-            </div>
-
-
-            <div class="field">
-                <label>
-                    {% if LANGUAGE_CODE == 'uz' %}Nashr yili{% elif LANGUAGE_CODE == 'ru' %}Год публикации{% else %}Published Year{% endif %}
-                </label>
-                {{ form.published_year }}
-                {{ form.published_year.errors }}
-            </div>
-
-            <div class="field">
-                <label>
-                    {% if LANGUAGE_CODE == 'uz' %}📷 Kitob rasmi{% elif LANGUAGE_CODE == 'ru' %}📷 Изображение книги{% else %}📷 Book Image{% endif %}
-                </label>
-                {{ form.image }}
-                {{ form.image.errors }}
-            </div>
-
-            <button type="submit" class="btn btn-primary">
-                {% if LANGUAGE_CODE == 'uz' %}O'zgarishlarni saqlash{% elif LANGUAGE_CODE == 'ru' %}Сохранить изменения{% else %}Save Changes{% endif %}
-            </button>
-
-            <a href="{% url 'book_detail' book.id %}" class="btn btn-secondary">
-                {% if LANGUAGE_CODE == 'uz' %}Bekor qilish{% elif LANGUAGE_CODE == 'ru' %}Отмена{% else %}Cancel{% endif %}
-            </a>
 
         </form>
 

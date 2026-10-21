@@ -1,0 +1,641 @@
+{% extends "base.html" %}
+{% load price_filters l10n %}
+
+{% block title %}
+    {% if LANGUAGE_CODE == 'uz' %}Boshqaruv paneli{% elif LANGUAGE_CODE == 'ru' %}Панель управления{% else %}Dashboard{% endif %} — BookLife
+{% endblock %}
+
+{% block extra_css %}
+<style>
+    .dash { padding: 36px 0 0; }
+
+    .dash-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-end;
+        gap: 20px;
+        flex-wrap: wrap;
+        margin-bottom: 28px;
+    }
+
+    .dash-head h1 {
+        font-family: var(--font-display);
+        font-weight: 600;
+        font-size: clamp(2rem, 4vw, 2.8rem);
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+    }
+
+    .dash-head p { color: var(--muted); margin-top: 6px; }
+    .dash-head-actions { display: flex; gap: 10px; flex-wrap: wrap; }
+
+    .panel {
+        background: var(--surface);
+        border: 1px solid var(--border);
+        border-radius: var(--radius);
+        padding: 22px;
+        min-width: 0;
+        animation: fadeUp 0.5s ease both;
+    }
+
+    .panel-head {
+        display: flex;
+        justify-content: space-between;
+        align-items: flex-start;
+        gap: 12px;
+        margin-bottom: 20px;
+    }
+
+    .panel-head h2 { font-size: 15px; font-weight: 700; }
+    .panel-head p { font-size: 13px; color: var(--muted); margin-top: 2px; }
+
+    .link-btn {
+        border: 0;
+        background: none;
+        color: var(--muted);
+        font: 600 12px var(--font-body);
+        cursor: pointer;
+        padding: 4px 0;
+        white-space: nowrap;
+    }
+
+    .link-btn:hover { color: var(--text); text-decoration: underline; }
+
+    /* KPI tiles */
+    .kpis {
+        display: grid;
+        grid-template-columns: repeat(4, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .kpi { display: flex; flex-direction: column; gap: 10px; }
+
+    .kpi-top { display: flex; align-items: center; justify-content: space-between; }
+    .kpi-label { font-size: 13px; font-weight: 600; color: var(--muted); }
+
+    .kpi-icon {
+        width: 34px;
+        height: 34px;
+        border-radius: 10px;
+        display: grid;
+        place-items: center;
+        background: var(--surface-2);
+        color: var(--muted);
+    }
+
+    .kpi-icon svg { width: 17px; height: 17px; }
+
+    .kpi-value {
+        font-size: clamp(1.6rem, 2.6vw, 2.1rem);
+        font-weight: 700;
+        letter-spacing: -0.02em;
+        line-height: 1.1;
+    }
+
+    .kpi-value small { font-size: 0.5em; font-weight: 600; color: var(--muted); margin-left: 2px; }
+    .kpi-sub { font-size: 13px; color: var(--muted); }
+    .kpi-sub strong { color: var(--success-text); font-weight: 600; }
+
+    /* Layout */
+    .dash-grid {
+        display: grid;
+        grid-template-columns: repeat(12, minmax(0, 1fr));
+        gap: 16px;
+        margin-bottom: 16px;
+    }
+
+    .span-7 { grid-column: span 7; }
+    .span-5 { grid-column: span 5; }
+    .span-12 { grid-column: span 12; }
+
+    /* Column chart */
+    .chart { position: relative; height: 220px; display: flex; }
+
+    .chart-axis {
+        position: relative;
+        width: 32px;
+        flex-shrink: 0;
+        font-size: 11px;
+        color: var(--muted);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .chart-axis span { position: absolute; right: 8px; transform: translateY(50%); }
+
+    .chart-plot { position: relative; flex: 1; border-bottom: 1px solid var(--border-strong); }
+
+    .gridline {
+        position: absolute;
+        left: 0;
+        right: 0;
+        height: 1px;
+        background: var(--border);
+    }
+
+    .columns {
+        position: absolute;
+        inset: 0;
+        display: flex;
+        align-items: stretch;
+    }
+
+    .col {
+        position: relative;
+        flex: 1;
+        display: flex;
+        flex-direction: column;
+        justify-content: flex-end;
+        align-items: center;
+        cursor: default;
+    }
+
+    .col:hover { background: color-mix(in srgb, var(--text) 4%, transparent); }
+
+    .col-bar {
+        position: relative;
+        width: min(24px, 60%);
+        background: var(--accent);
+        border-radius: 4px 4px 0 0;
+        transition: opacity 0.2s;
+    }
+
+    .col-bar.zero { height: 0 !important; }
+    .col:hover .col-bar { opacity: 0.85; }
+
+    .col-value {
+        position: absolute;
+        bottom: 100%;
+        left: 50%;
+        transform: translateX(-50%);
+        padding-bottom: 4px;
+        font-size: 12px;
+        font-weight: 700;
+        color: var(--text);
+        white-space: nowrap;
+    }
+
+    .col-labels { display: flex; margin-left: 32px; }
+
+    .col-labels span {
+        flex: 1;
+        text-align: center;
+        font-size: 12px;
+        color: var(--muted);
+        padding-top: 8px;
+        white-space: nowrap;
+        overflow: hidden;
+        text-overflow: ellipsis;
+    }
+
+    /* Horizontal bars */
+    .hbars { display: grid; gap: 14px; }
+
+    .hbar {
+        display: grid;
+        grid-template-columns: minmax(90px, 140px) 1fr;
+        align-items: center;
+        gap: 12px;
+        font-size: 13px;
+    }
+
+    .hbar-name { font-weight: 600; white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+    .hbar-track { display: flex; align-items: center; gap: 8px; }
+
+    .hbar-fill {
+        height: 14px;
+        min-width: 4px;
+        background: var(--accent);
+        border-radius: 0 4px 4px 0;
+    }
+
+    .hbar-value { font-weight: 700; font-variant-numeric: tabular-nums; }
+
+    /* Health checklist */
+    .health { display: grid; gap: 10px; margin-top: 22px; padding-top: 18px; border-top: 1px solid var(--border); }
+
+    .health-item { display: flex; align-items: center; gap: 10px; font-size: 13px; }
+
+    .health-dot {
+        width: 22px;
+        height: 22px;
+        border-radius: 999px;
+        display: grid;
+        place-items: center;
+        flex-shrink: 0;
+    }
+
+    .health-dot svg { width: 13px; height: 13px; }
+    .health-dot.ok { background: var(--success-bg); color: var(--success-text); }
+    .health-dot.warn { background: var(--accent-soft); color: var(--accent); }
+
+    /* Data table (also used as chart table view) */
+    .table-wrap { overflow-x: auto; margin: 0 -22px -22px; }
+
+    .data-table {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: 14px;
+    }
+
+    .data-table th {
+        text-align: left;
+        font-size: 12px;
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        color: var(--muted);
+        padding: 10px 22px;
+        background: var(--surface-2);
+        border-top: 1px solid var(--border);
+        border-bottom: 1px solid var(--border);
+        white-space: nowrap;
+    }
+
+    .data-table td {
+        padding: 12px 22px;
+        border-bottom: 1px solid var(--border);
+        vertical-align: middle;
+    }
+
+    .data-table tr:last-child td { border-bottom: 0; }
+    .data-table tbody tr:hover td { background: color-mix(in srgb, var(--surface-2) 60%, transparent); }
+    .data-table .num { text-align: right; font-variant-numeric: tabular-nums; white-space: nowrap; }
+
+    .chart-table { display: none; }
+    .chart-table .data-table th, .chart-table .data-table td { padding: 8px 12px; }
+    .show-table .chart-view { display: none; }
+    .show-table .chart-table { display: block; }
+
+    .book-cell { display: flex; align-items: center; gap: 12px; min-width: 220px; }
+
+    .thumb {
+        width: 36px;
+        height: 48px;
+        border-radius: 5px;
+        overflow: hidden;
+        flex-shrink: 0;
+        background: var(--surface-2);
+        border: 1px solid var(--border);
+    }
+
+    .thumb img { width: 100%; height: 100%; object-fit: cover; }
+    .book-cell strong { display: block; font-weight: 600; }
+    .book-cell span { font-size: 13px; color: var(--muted); }
+
+    .row-actions { display: flex; gap: 6px; justify-content: flex-end; }
+
+    .row-action {
+        width: 32px;
+        height: 32px;
+        display: grid;
+        place-items: center;
+        border-radius: 8px;
+        border: 1px solid var(--border);
+        color: var(--muted);
+        transition: color 0.2s, border-color 0.2s, background 0.2s;
+    }
+
+    .row-action svg { width: 15px; height: 15px; }
+    .row-action:hover { color: var(--text); border-color: var(--border-strong); }
+    .row-action.danger:hover { color: #fff; background: var(--danger); border-color: var(--danger); }
+
+    .person { display: flex; align-items: center; gap: 10px; white-space: nowrap; }
+    .person .avatar { width: 32px; height: 32px; }
+    .muted { color: var(--muted); }
+
+    .table-search {
+        height: 38px;
+        width: min(240px, 100%);
+        padding: 0 14px;
+        border-radius: 999px;
+        border: 1px solid var(--border);
+        background: var(--surface-2);
+        color: var(--text);
+        font: 400 14px var(--font-body);
+        outline: none;
+    }
+
+    .table-search:focus { border-color: var(--accent); box-shadow: 0 0 0 3px var(--accent-soft); }
+
+    .empty-row td { text-align: center; color: var(--muted); padding: 32px 22px; }
+
+    /* Tooltip */
+    .tooltip {
+        position: fixed;
+        z-index: 100;
+        pointer-events: none;
+        padding: 8px 12px;
+        border-radius: 8px;
+        background: var(--ink);
+        color: var(--ink-text);
+        font-size: 12px;
+        line-height: 1.4;
+        box-shadow: var(--shadow-md);
+        opacity: 0;
+        transform: translate(-50%, calc(-100% - 10px));
+        transition: opacity 0.12s;
+        white-space: nowrap;
+    }
+
+    .tooltip strong { display: block; font-size: 14px; }
+    .tooltip.visible { opacity: 1; }
+
+    @media (max-width: 1000px) {
+        .kpis { grid-template-columns: repeat(2, minmax(0, 1fr)); }
+        .span-7, .span-5 { grid-column: span 12; }
+    }
+
+    @media (max-width: 520px) {
+        .kpis { grid-template-columns: minmax(0, 1fr); }
+        .panel { padding: 18px; }
+        .table-wrap { margin: 0 -18px -18px; }
+    }
+</style>
+{% endblock %}
+
+{% block content %}
+<div class="container dash">
+
+    <div class="dash-head">
+        <div>
+            <h1>{% if LANGUAGE_CODE == 'uz' %}Boshqaruv paneli{% elif LANGUAGE_CODE == 'ru' %}Панель управления{% else %}Dashboard{% endif %}</h1>
+            <p>{% if LANGUAGE_CODE == 'uz' %}Do'koningiz bo'yicha umumiy ko'rinish{% elif LANGUAGE_CODE == 'ru' %}Общий обзор вашего магазина{% else %}An overview of your store{% endif %}</p>
+        </div>
+        <div class="dash-head-actions">
+            <a href="/admin/" class="btn btn-secondary" target="_blank" rel="noopener noreferrer">Django Admin</a>
+            <a href="{% url 'book_create' %}" class="btn btn-primary">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2" stroke-linecap="round"><line x1="12" y1="5" x2="12" y2="19"/><line x1="5" y1="12" x2="19" y2="12"/></svg>
+                {% if LANGUAGE_CODE == 'uz' %}Kitob qo'shish{% elif LANGUAGE_CODE == 'ru' %}Добавить книгу{% else %}Add book{% endif %}
+            </a>
+        </div>
+    </div>
+
+    <!-- KPI tiles -->
+    <section class="kpis">
+        <div class="panel kpi">
+            <div class="kpi-top">
+                <span class="kpi-label">{% if LANGUAGE_CODE == 'uz' %}Jami kitoblar{% elif LANGUAGE_CODE == 'ru' %}Всего книг{% else %}Total books{% endif %}</span>
+                <span class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M4 19.5A2.5 2.5 0 0 1 6.5 17H20"/><path d="M6.5 2H20v20H6.5A2.5 2.5 0 0 1 4 19.5v-15A2.5 2.5 0 0 1 6.5 2z"/></svg></span>
+            </div>
+            <div class="kpi-value">{{ book_stats.total }}</div>
+            <div class="kpi-sub">{% if LANGUAGE_CODE == 'uz' %}Katalogdagi nomlar{% elif LANGUAGE_CODE == 'ru' %}Наименований в каталоге{% else %}Titles in catalog{% endif %}</div>
+        </div>
+
+        <div class="panel kpi">
+            <div class="kpi-top">
+                <span class="kpi-label">{% if LANGUAGE_CODE == 'uz' %}Mijozlar{% elif LANGUAGE_CODE == 'ru' %}Клиенты{% else %}Customers{% endif %}</span>
+                <span class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"/><circle cx="9" cy="7" r="4"/><path d="M23 21v-2a4 4 0 0 0-3-3.87"/><path d="M16 3.13a4 4 0 0 1 0 7.75"/></svg></span>
+            </div>
+            <div class="kpi-value">{{ customer_count }}</div>
+            <div class="kpi-sub">
+                <strong>+{{ new_customers }}</strong>
+                {% if LANGUAGE_CODE == 'uz' %}shu oyda{% elif LANGUAGE_CODE == 'ru' %}в этом месяце{% else %}this month{% endif %}
+            </div>
+        </div>
+
+        <div class="panel kpi">
+            <div class="kpi-top">
+                <span class="kpi-label">{% if LANGUAGE_CODE == 'uz' %}Katalog qiymati{% elif LANGUAGE_CODE == 'ru' %}Стоимость каталога{% else %}Catalog value{% endif %}</span>
+                <span class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="2" y="6" width="20" height="12" rx="2"/><circle cx="12" cy="12" r="2.5"/><path d="M6 12h.01M18 12h.01"/></svg></span>
+            </div>
+            <div class="kpi-value">{{ book_stats.value|default:0|uzs }}<small>so'm</small></div>
+            <div class="kpi-sub">{% if LANGUAGE_CODE == 'uz' %}Barcha kitoblar narxi yig'indisi{% elif LANGUAGE_CODE == 'ru' %}Сумма цен всех книг{% else %}Sum of all book prices{% endif %}</div>
+        </div>
+
+        <div class="panel kpi">
+            <div class="kpi-top">
+                <span class="kpi-label">{% if LANGUAGE_CODE == 'uz' %}O'rtacha narx{% elif LANGUAGE_CODE == 'ru' %}Средняя цена{% else %}Average price{% endif %}</span>
+                <span class="kpi-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><line x1="12" y1="20" x2="12" y2="10"/><line x1="18" y1="20" x2="18" y2="4"/><line x1="6" y1="20" x2="6" y2="16"/></svg></span>
+            </div>
+            <div class="kpi-value">{{ book_stats.avg|default:0|floatformat:0|uzs }}<small>so'm</small></div>
+            <div class="kpi-sub">{% if LANGUAGE_CODE == 'uz' %}Bitta kitob uchun{% elif LANGUAGE_CODE == 'ru' %}За одну книгу{% else %}Per book{% endif %}</div>
+        </div>
+    </section>
+
+    <!-- Charts -->
+    <section class="dash-grid">
+        <div class="panel span-7" data-chart-panel>
+            <div class="panel-head">
+                <div>
+                    <h2>{% if LANGUAGE_CODE == 'uz' %}Yangi mijozlar{% elif LANGUAGE_CODE == 'ru' %}Новые клиенты{% else %}New customers{% endif %}</h2>
+                    <p>{% if LANGUAGE_CODE == 'uz' %}Oxirgi 6 oyda ro'yxatdan o'tganlar{% elif LANGUAGE_CODE == 'ru' %}Регистрации за последние 6 месяцев{% else %}Sign-ups over the last 6 months{% endif %} · {{ signups_chart.total }}</p>
+                </div>
+                <button type="button" class="link-btn" data-table-toggle>{% if LANGUAGE_CODE == 'uz' %}Jadval{% elif LANGUAGE_CODE == 'ru' %}Таблица{% else %}Table{% endif %}</button>
+            </div>
+            {% include "partials/column_chart.html" with chart=signups_chart %}
+        </div>
+
+        <div class="panel span-5">
+            <div class="panel-head">
+                <div>
+                    <h2>{% if LANGUAGE_CODE == 'uz' %}Top mualliflar{% elif LANGUAGE_CODE == 'ru' %}Топ авторов{% else %}Top authors{% endif %}</h2>
+                    <p>{% if LANGUAGE_CODE == 'uz' %}Kitoblar soni bo'yicha{% elif LANGUAGE_CODE == 'ru' %}По количеству книг{% else %}By number of books{% endif %}</p>
+                </div>
+            </div>
+
+            {% if top_authors %}
+            <div class="hbars">
+                {% for a in top_authors %}
+                <div class="hbar" data-tip="{{ a.author }}" data-tip-value="{{ a.c }}">
+                    <span class="hbar-name" title="{{ a.author }}">{{ a.author }}</span>
+                    <span class="hbar-track">
+                        <span class="hbar-fill" style="width: calc({{ a.pct|unlocalize }}% - 24px)"></span>
+                        <span class="hbar-value">{{ a.c }}</span>
+                    </span>
+                </div>
+                {% endfor %}
+            </div>
+            {% else %}
+                <p class="muted">—</p>
+            {% endif %}
+
+            <div class="health">
+                <div class="health-item">
+                    {% if no_description %}
+                        <span class="health-dot warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="7" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+                        {{ no_description }} {% if LANGUAGE_CODE == 'uz' %}ta kitobda tavsif yo'q{% elif LANGUAGE_CODE == 'ru' %}книг без описания{% else %}books missing a description{% endif %}
+                    {% else %}
+                        <span class="health-dot ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                        {% if LANGUAGE_CODE == 'uz' %}Barcha kitoblarda tavsif bor{% elif LANGUAGE_CODE == 'ru' %}У всех книг есть описание{% else %}All books have a description{% endif %}
+                    {% endif %}
+                </div>
+                <div class="health-item">
+                    {% if no_image %}
+                        <span class="health-dot warn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round"><line x1="12" y1="7" x2="12" y2="13"/><line x1="12" y1="17" x2="12.01" y2="17"/></svg></span>
+                        {{ no_image }} {% if LANGUAGE_CODE == 'uz' %}ta kitobda rasm yo'q{% elif LANGUAGE_CODE == 'ru' %}книг без изображения{% else %}books missing an image{% endif %}
+                    {% else %}
+                        <span class="health-dot ok"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="3" stroke-linecap="round" stroke-linejoin="round"><polyline points="20 6 9 17 4 12"/></svg></span>
+                        {% if LANGUAGE_CODE == 'uz' %}Barcha kitoblarda rasm bor{% elif LANGUAGE_CODE == 'ru' %}У всех книг есть изображение{% else %}All books have an image{% endif %}
+                    {% endif %}
+                </div>
+            </div>
+        </div>
+
+        <div class="panel span-12" data-chart-panel>
+            <div class="panel-head">
+                <div>
+                    <h2>{% if LANGUAGE_CODE == 'uz' %}Nashr yili bo'yicha kitoblar{% elif LANGUAGE_CODE == 'ru' %}Книги по году издания{% else %}Books by published year{% endif %}</h2>
+                    <p>{% if LANGUAGE_CODE == 'uz' %}Katalogdagi kitoblar soni{% elif LANGUAGE_CODE == 'ru' %}Количество книг в каталоге{% else %}Number of titles in the catalog{% endif %}</p>
+                </div>
+                <button type="button" class="link-btn" data-table-toggle>{% if LANGUAGE_CODE == 'uz' %}Jadval{% elif LANGUAGE_CODE == 'ru' %}Таблица{% else %}Table{% endif %}</button>
+            </div>
+            {% include "partials/column_chart.html" with chart=years_chart %}
+        </div>
+    </section>
+
+    <!-- Books table -->
+    <section class="dash-grid">
+        <div class="panel span-12">
+            <div class="panel-head">
+                <div>
+                    <h2>{% if LANGUAGE_CODE == 'uz' %}Kitoblar{% elif LANGUAGE_CODE == 'ru' %}Книги{% else %}Books{% endif %}</h2>
+                    <p>{{ book_stats.total }} {% if LANGUAGE_CODE == 'uz' %}ta kitob{% elif LANGUAGE_CODE == 'ru' %}книг{% else %}titles{% endif %}</p>
+                </div>
+                <input type="search" class="table-search" data-filter="booksTable" placeholder="{% if LANGUAGE_CODE == 'uz' %}Qidirish...{% elif LANGUAGE_CODE == 'ru' %}Поиск...{% else %}Search...{% endif %}">
+            </div>
+            <div class="table-wrap">
+                <table class="data-table" id="booksTable">
+                    <thead>
+                        <tr>
+                            <th>{% if LANGUAGE_CODE == 'uz' %}Kitob{% elif LANGUAGE_CODE == 'ru' %}Книга{% else %}Book{% endif %}</th>
+                            <th class="num">{% if LANGUAGE_CODE == 'uz' %}Yil{% elif LANGUAGE_CODE == 'ru' %}Год{% else %}Year{% endif %}</th>
+                            <th class="num">{% if LANGUAGE_CODE == 'uz' %}Narx{% elif LANGUAGE_CODE == 'ru' %}Цена{% else %}Price{% endif %}</th>
+                            <th></th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for book in books %}
+                        <tr data-search="{{ book.title|lower }} {{ book.author|lower }}">
+                            <td>
+                                <a href="{% url 'book_detail' book.id %}" class="book-cell">
+                                    <span class="thumb">{% if book.image %}<img src="{{ book.image.url }}" alt="" loading="lazy">{% endif %}</span>
+                                    <span>
+                                        <strong>{{ book.title }}</strong>
+                                        <span>{{ book.author }}</span>
+                                    </span>
+                                </a>
+                            </td>
+                            <td class="num">{{ book.published_year }}</td>
+                            <td class="num"><strong>{{ book.price|uzs }}</strong> <span class="muted">so'm</span></td>
+                            <td>
+                                <div class="row-actions">
+                                    <a href="{% url 'book_detail' book.id %}" class="row-action" title="{% if LANGUAGE_CODE == 'uz' %}Ko'rish{% elif LANGUAGE_CODE == 'ru' %}Смотреть{% else %}View{% endif %}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M1 12s4-8 11-8 11 8 11 8-4 8-11 8-11-8-11-8z"/><circle cx="12" cy="12" r="3"/></svg>
+                                    </a>
+                                    <a href="{% url 'book_update' book.id %}" class="row-action" title="{% if LANGUAGE_CODE == 'uz' %}Tahrirlash{% elif LANGUAGE_CODE == 'ru' %}Редактировать{% else %}Edit{% endif %}">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M12 20h9"/><path d="M16.5 3.5a2.12 2.12 0 0 1 3 3L7 19l-4 1 1-4z"/></svg>
+                                    </a>
+                                    <a href="{% url 'book_delete' book.id %}" class="row-action danger" title="{% if LANGUAGE_CODE == 'uz' %}O'chirish{% elif LANGUAGE_CODE == 'ru' %}Удалить{% else %}Delete{% endif %}" onclick="return confirm('{% if LANGUAGE_CODE == 'uz' %}Ushbu kitobni o\'chirishni xohlaysizmi?{% elif LANGUAGE_CODE == 'ru' %}Удалить эту книгу?{% else %}Delete this book?{% endif %}')">
+                                        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><polyline points="3 6 5 6 21 6"/><path d="M19 6l-1 14a2 2 0 0 1-2 2H8a2 2 0 0 1-2-2L5 6"/><path d="M10 11v6M14 11v6"/></svg>
+                                    </a>
+                                </div>
+                            </td>
+                        </tr>
+                        {% empty %}
+                        <tr class="empty-row"><td colspan="4">{% if LANGUAGE_CODE == 'uz' %}Hali kitoblar yo'q{% elif LANGUAGE_CODE == 'ru' %}Пока нет книг{% else %}No books yet{% endif %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <!-- Customers table -->
+    <section class="dash-grid">
+        <div class="panel span-12">
+            <div class="panel-head">
+                <div>
+                    <h2>{% if LANGUAGE_CODE == 'uz' %}Mijozlar{% elif LANGUAGE_CODE == 'ru' %}Клиенты{% else %}Customers{% endif %}</h2>
+                    <p>{% if LANGUAGE_CODE == 'uz' %}Oxirgi ro'yxatdan o'tganlar{% elif LANGUAGE_CODE == 'ru' %}Последние зарегистрированные{% else %}Most recent sign-ups{% endif %}</p>
+                </div>
+                <input type="search" class="table-search" data-filter="customersTable" placeholder="{% if LANGUAGE_CODE == 'uz' %}Qidirish...{% elif LANGUAGE_CODE == 'ru' %}Поиск...{% else %}Search...{% endif %}">
+            </div>
+            <div class="table-wrap">
+                <table class="data-table" id="customersTable">
+                    <thead>
+                        <tr>
+                            <th>{% if LANGUAGE_CODE == 'uz' %}Mijoz{% elif LANGUAGE_CODE == 'ru' %}Клиент{% else %}Customer{% endif %}</th>
+                            <th>ID</th>
+                            <th>{% if LANGUAGE_CODE == 'uz' %}Telefon{% elif LANGUAGE_CODE == 'ru' %}Телефон{% else %}Phone{% endif %}</th>
+                            <th>{% if LANGUAGE_CODE == 'uz' %}Manzil{% elif LANGUAGE_CODE == 'ru' %}Адрес{% else %}Address{% endif %}</th>
+                            <th class="num">{% if LANGUAGE_CODE == 'uz' %}Ro'yxatdan o'tgan{% elif LANGUAGE_CODE == 'ru' %}Регистрация{% else %}Joined{% endif %}</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for c in customers %}
+                        <tr data-search="{{ c.first_name|lower }} {{ c.last_name|lower }} {{ c.username }} {{ c.profile.phone|default:'' }} {{ c.profile.address|default:''|lower }}">
+                            <td>
+                                <span class="person">
+                                    <span class="avatar">{{ c.first_name|default:c.username|slice:":1" }}</span>
+                                    {% if c.first_name or c.last_name %}{{ c.first_name }} {{ c.last_name }}{% else %}<span class="muted">—</span>{% endif %}
+                                </span>
+                            </td>
+                            <td class="muted">{{ c.username }}</td>
+                            <td>{{ c.profile.phone|default:"—" }}</td>
+                            <td>{{ c.profile.address|default:"—" }}</td>
+                            <td class="num muted">{{ c.date_joined|date:"d.m.Y" }}</td>
+                        </tr>
+                        {% empty %}
+                        <tr class="empty-row"><td colspan="5">{% if LANGUAGE_CODE == 'uz' %}Hali mijozlar yo'q{% elif LANGUAGE_CODE == 'ru' %}Пока нет клиентов{% else %}No customers yet{% endif %}</td></tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+</div>
+
+<div class="tooltip" id="tooltip" role="status" aria-live="polite"></div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+    (function () {
+        // Chart / table toggle
+        document.querySelectorAll('[data-table-toggle]').forEach(function (btn) {
+            var chartLabel = '{% if LANGUAGE_CODE == "uz" %}Grafik{% elif LANGUAGE_CODE == "ru" %}График{% else %}Chart{% endif %}';
+            var tableLabel = btn.textContent;
+            btn.addEventListener('click', function () {
+                var panel = btn.closest('[data-chart-panel]');
+                var showing = panel.classList.toggle('show-table');
+                btn.textContent = showing ? chartLabel : tableLabel;
+            });
+        });
+
+        // Hover tooltip for chart marks
+        var tip = document.getElementById('tooltip');
+        document.querySelectorAll('[data-tip]').forEach(function (el) {
+            el.addEventListener('mouseenter', function () {
+                tip.innerHTML = '';
+                var label = document.createElement('div');
+                label.textContent = el.dataset.tip;
+                var value = document.createElement('strong');
+                value.textContent = el.dataset.tipValue;
+                tip.appendChild(label);
+                tip.appendChild(value);
+                tip.classList.add('visible');
+            });
+            el.addEventListener('mousemove', function (e) {
+                tip.style.left = e.clientX + 'px';
+                tip.style.top = e.clientY + 'px';
+            });
+            el.addEventListener('mouseleave', function () {
+                tip.classList.remove('visible');
+            });
+        });
+
+        // Table search filters
+        document.querySelectorAll('[data-filter]').forEach(function (input) {
+            var rows = document.querySelectorAll('#' + input.dataset.filter + ' tbody tr[data-search]');
+            input.addEventListener('input', function () {
+                var q = input.value.trim().toLowerCase();
+                rows.forEach(function (row) {
+                    row.style.display = !q || row.dataset.search.indexOf(q) !== -1 ? '' : 'none';
+                });
+            });
+        });
+    })();
+</script>
+{% endblock %}

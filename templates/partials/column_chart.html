@@ -1,0 +1,32 @@
+{% load l10n %}{% localize off %}<div class="chart-view">
+    <div class="chart">
+        <div class="chart-axis">
+            {% for tick in chart.ticks %}<span style="bottom: {{ tick.pct }}%">{{ tick.value }}</span>{% endfor %}
+        </div>
+        <div class="chart-plot">
+            {% for tick in chart.ticks %}<div class="gridline" style="bottom: {{ tick.pct }}%"></div>{% endfor %}
+            <div class="columns">
+                {% for bar in chart.bars %}
+                <div class="col" data-tip="{{ bar.label }}" data-tip-value="{{ bar.value }}">
+                    <div class="col-bar {% if not bar.value %}zero{% endif %}" style="height: {{ bar.pct }}%">
+                        {% if bar.is_peak or forloop.last %}<span class="col-value">{{ bar.value }}</span>{% endif %}
+                    </div>
+                </div>
+                {% endfor %}
+            </div>
+        </div>
+    </div>
+    <div class="col-labels">
+        {% for bar in chart.bars %}<span>{{ bar.label }}</span>{% endfor %}
+    </div>
+</div>
+<div class="chart-table">
+    <table class="data-table">
+        <tbody>
+            {% for bar in chart.bars %}
+            <tr><td>{{ bar.label }}</td><td class="num">{{ bar.value }}</td></tr>
+            {% endfor %}
+        </tbody>
+    </table>
+</div>
+{% endlocalize %}

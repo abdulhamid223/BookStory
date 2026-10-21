@@ -1,8 +1,14 @@
 from django import forms
-from .models import Book
+from .models import Book, GENRE_LABELS
 
 
 class BookForm(forms.ModelForm):
+
+    PLACEHOLDERS = {
+        "uz": {"title": "Kitob nomi", "author": "Muallif ismi", "price": "Narx", "description": "Kitob haqida qisqacha"},
+        "ru": {"title": "Название книги", "author": "Имя автора", "price": "Цена", "description": "Кратко о книге"},
+        "en": {"title": "Book title", "author": "Author name", "price": "Price", "description": "Book description"},
+    }
 
     class Meta:
         model = Book
@@ -11,28 +17,22 @@ class BookForm(forms.ModelForm):
             "title",
             "author",
             "price",
+            "genre",
             "description",
             "published_year",
             "image",
         ]
 
         widgets = {
-            "title": forms.TextInput(attrs={
-                "placeholder": "Book title"
-            }),
+            "title": forms.TextInput(),
 
-            "author": forms.TextInput(attrs={
-                "placeholder": "Author name"
-            }),
+            "author": forms.TextInput(),
 
             "price": forms.NumberInput(attrs={
-                "placeholder": "Price",
                 "step": "0.01"
             }),
 
-            "description": forms.Textarea(attrs={
-                "placeholder": "Book description"
-            }),
+            "description": forms.Textarea(),
 
             "published_year": forms.NumberInput(attrs={
                 "placeholder": "2026"
@@ -42,6 +42,14 @@ class BookForm(forms.ModelForm):
                 "required": True
             }),
         }
+
+    def __init__(self, *args, lang="uz", **kwargs):
+        super().__init__(*args, **kwargs)
+        placeholders = self.PLACEHOLDERS.get(lang, self.PLACEHOLDERS["en"])
+        for name, text in placeholders.items():
+            self.fields[name].widget.attrs["placeholder"] = text
+        labels = GENRE_LABELS.get(lang, GENRE_LABELS["en"])
+        self.fields["genre"].choices = [(key, labels[key]) for key, _ in self.fields["genre"].choices if key]
 
 
 class UserRegisterForm(forms.Form):

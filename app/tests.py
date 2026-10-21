@@ -64,14 +64,42 @@ class AuthAndLanguageTests(TestCase):
 
 
 class BookAdminAccessTests(TestCase):
+    def setUp(self):
+        self.user = User.objects.create_user(username="reader", password="pass123")
+        self.book = Book.objects.create(
+            title="Reader book",
+            author="Reader author",
+            price=150000,
+            description="Some description",
+            published_year=2023,
+            image=make_test_image("reader-book.png"),
+        )
+
     def test_non_admin_cannot_access_book_creation(self):
-        user = User.objects.create_user(username="reader", password="pass123")
         self.client.login(username="reader", password="pass123")
 
         response = self.client.get(reverse("book_create"))
 
         self.assertEqual(response.status_code, 403)
-        self.assertFalse(user.is_staff)
+        self.assertFalse(self.user.is_staff)
+
+    def test_non_admin_cannot_access_book_update_or_delete(self):
+        self.client.login(username="reader", password="pass123")
+
+        update_response = self.client.get(reverse("book_update", args=[self.book.id]))
+        delete_response = self.client.get(reverse("book_delete", args=[self.book.id]))
+
+        self.assertEqual(update_response.status_code, 403)
+        self.assertEqual(delete_response.status_code, 403)
+
+    def test_regular_user_sees_only_view_button_on_book_list(self):
+        self.client.login(username="reader", password="pass123")
+
+        response = self.client.get(reverse("book_list"))
+
+        self.assertContains(response, "Ko'rish")
+        self.assertNotContains(response, "Tahrirlash")
+        self.assertNotContains(response, "O'chirish")
 
 
 class NavigationAccessTests(TestCase):
@@ -98,7 +126,11 @@ class NavigationAccessTests(TestCase):
 
 class BookUpdateTests(TestCase):
     def setUp(self):
-        self.user = User.objects.create_user(username="editor", password="pass123")
+        self.user = User.objects.create_user(
+            username="editor",
+            password="pass123",
+            is_staff=True,
+        )
         self.book = Book.objects.create(
             title="Original title",
             author="Original author",
@@ -119,6 +151,7 @@ class BookUpdateTests(TestCase):
                 "price": "200000",
                 "description": "New description",
                 "published_year": "2025",
+                "genre": "tarixiy",
                 "image": make_test_image("updated-book.png"),
             },
             follow=True,

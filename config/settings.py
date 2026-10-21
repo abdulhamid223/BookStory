@@ -34,9 +34,15 @@ ALLOWED_HOSTS = [
 
 CSRF_TRUSTED_ORIGINS = [
     origin.strip()
-    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://bookstory-b9l5.onrender.com').split(',')
+    for origin in os.environ.get('CSRF_TRUSTED_ORIGINS', 'https://booklife-uz.onrender.com').split(',')
     if origin.strip()
 ]
+
+# Render o'zi beradigan manzil (masalan booklife-uz.onrender.com)
+RENDER_EXTERNAL_HOSTNAME = os.environ.get('RENDER_EXTERNAL_HOSTNAME')
+if RENDER_EXTERNAL_HOSTNAME:
+    ALLOWED_HOSTS.append(RENDER_EXTERNAL_HOSTNAME)
+    CSRF_TRUSTED_ORIGINS.append(f'https://{RENDER_EXTERNAL_HOSTNAME}')
 
 SECURE_PROXY_SSL_HEADER = ('HTTP_X_FORWARDED_PROTO', 'https')
 SESSION_COOKIE_SECURE = True
@@ -150,7 +156,20 @@ LOGIN_REDIRECT_URL = 'book_list'
 
 STATIC_URL = '/static/'
 STATIC_ROOT = BASE_DIR / 'staticfiles'
-STATICFILES_STORAGE = 'whitenoise.storage.CompressedManifestStaticFilesStorage'
+
+# Rasmlar: CLOUDINARY_URL berilsa Cloudinary'da, aks holda lokal media/ papkasida
+STORAGES = {
+    'default': {
+        'BACKEND': (
+            'app.storage.CloudinaryMediaStorage'
+            if os.environ.get('CLOUDINARY_URL')
+            else 'django.core.files.storage.FileSystemStorage'
+        ),
+    },
+    'staticfiles': {
+        'BACKEND': 'whitenoise.storage.CompressedManifestStaticFilesStorage',
+    },
+}
 
 
 # Email

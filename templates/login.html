@@ -5,17 +5,17 @@
 {% endblock %}
 
 {% block content %}
-<div class="container">
-    <div class="form-box">
-        <h1>
-            {% if LANGUAGE_CODE == 'uz' %}Kirish{% elif LANGUAGE_CODE == 'ru' %}Вход{% else %}Login{% endif %}
-        </h1>
-
-        {% if messages %}
-            {% for message in messages %}
-                <div class="message-error">{{ message }}</div>
-            {% endfor %}
-        {% endif %}
+<div class="container form-page">
+    <div class="form-box narrow">
+        <div class="form-head">
+            <div class="feature-icon">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4"/><polyline points="10 17 15 12 10 7"/><line x1="15" y1="12" x2="3" y2="12"/></svg>
+            </div>
+            <h1>
+                {% if LANGUAGE_CODE == 'uz' %}Xush kelibsiz{% elif LANGUAGE_CODE == 'ru' %}С возвращением{% else %}Welcome back{% endif %}
+            </h1>
+            <p>{% if LANGUAGE_CODE == 'uz' %}Hisobingizga kiring.{% elif LANGUAGE_CODE == 'ru' %}Войдите в свой аккаунт.{% else %}Log in to your account.{% endif %}</p>
+        </div>
 
         <form method="POST">
             {% csrf_token %}
@@ -25,31 +25,32 @@
             {% endif %}
 
             <div class="field">
-                <label>
+                <label for="user_id">
                     {% if LANGUAGE_CODE == 'uz' %}Foydalanuvchi ID{% elif LANGUAGE_CODE == 'ru' %}ID пользователя{% else %}User ID{% endif %}
                 </label>
-                <input type="text" name="user_id" required>
+                <input type="text" id="user_id" name="user_id" autocomplete="username" required autofocus>
             </div>
 
             <div class="field">
-                <label>
+                <label for="password">
                     {% if LANGUAGE_CODE == 'uz' %}Parol{% elif LANGUAGE_CODE == 'ru' %}Пароль{% else %}Password{% endif %}
                 </label>
-                <input type="password" name="password" required>
+                <input type="password" id="password" name="password" autocomplete="current-password" required>
             </div>
 
-            <button type="submit" class="btn btn-primary">
-                {% if LANGUAGE_CODE == 'uz' %}Kirish{% elif LANGUAGE_CODE == 'ru' %}Войти{% else %}Login{% endif %}
-            </button>
+            <div class="form-actions">
+                <button type="submit" class="btn btn-primary btn-lg btn-block">
+                    {% if LANGUAGE_CODE == 'uz' %}Kirish{% elif LANGUAGE_CODE == 'ru' %}Войти{% else %}Login{% endif %}
+                </button>
+            </div>
+        </form>
 
-            <a href="{% url 'register' %}" class="btn btn-secondary">
+        <div class="form-footer">
+            {% if LANGUAGE_CODE == 'uz' %}Hisobingiz yo'qmi?{% elif LANGUAGE_CODE == 'ru' %}Нет аккаунта?{% else %}Don't have an account?{% endif %}
+            <a href="{% url 'register' %}">
                 {% if LANGUAGE_CODE == 'uz' %}Ro'yxatdan o'tish{% elif LANGUAGE_CODE == 'ru' %}Регистрация{% else %}Sign up{% endif %}
             </a>
-
-            <a href="{% url 'book_list' %}" class="btn btn-secondary">
-                {% if LANGUAGE_CODE == 'uz' %}Bekor qilish{% elif LANGUAGE_CODE == 'ru' %}Отмена{% else %}Cancel{% endif %}
-            </a>
-        </form>
+        </div>
     </div>
 </div>
 {% endblock %}
